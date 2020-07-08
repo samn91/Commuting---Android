@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         mainFragment = MainFragment()
         searchStationFragment = SearchStationFragment()
+        stationTimeTableFragment = StationTimeTableFragment()
 
         val preferences = getPreferences(Context.MODE_PRIVATE)
 
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mainFragment.onItemClickListener = {
+            showFragment(stationTimeTableFragment, true)
             stationTimeTableFragment.setStationId(it.id.toString())
         }
 

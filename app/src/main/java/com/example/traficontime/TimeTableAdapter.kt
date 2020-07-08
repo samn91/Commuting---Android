@@ -1,17 +1,18 @@
 package com.example.traficontime
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.item_station_record.view.*
 
-abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
+/**
+ * Created by Samer on 08/07/2020 21:14.
+ */
+class TimeTableAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    open var onItemClickListener: ((T) -> Unit)? = null
+    private var fullList = listOf<StationRecord>()
 
-    private var fullList = listOf<T>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -19,7 +20,7 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
     ): RecyclerView.ViewHolder {
 
         val textView = LayoutInflater.from(parent.context)
-            .inflate(resId, parent, false)
+            .inflate(R.layout.item_station_record, parent, false)
         return object : RecyclerView.ViewHolder(textView) {}
     }
 
@@ -27,19 +28,16 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = fullList[position]
-        holder.itemView.setOnClickListener {
-            onItemClickListener?.invoke(item)
-        }
-        bindItem(holder.itemView, item)
+
+        val notRelTimePrefix = if (item.isRealTime) "" else "*"
+        holder.itemView.tv_time.text = (notRelTimePrefix +
+                item.time.split('T')[1].split(":").slice(0..1).joinToString(":"))
+        holder.itemView.tv_station_name.text = (item.name + " " + item.toward)
     }
 
-    open fun submitList(newList: List<T>) {
+    fun submitList(newList: List<StationRecord>) {
         fullList = newList
-
         notifyDataSetChanged()
     }
-
-    abstract fun bindItem(parentView: View, item: T)
-
 
 }
