@@ -14,6 +14,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainFragment: MainFragment
     private lateinit var searchStationFragment: SearchStationFragment
+    private lateinit var stationTimeTableFragment: StationTimeTableFragment
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,10 @@ class MainActivity : AppCompatActivity() {
             preferences.edit {
                 putString(it.id.toString(), Gson().toJson(it))
             }
+        }
+
+        mainFragment.onItemClickListener = {
+            stationTimeTableFragment.setStationId(it.id.toString())
         }
 
         mainFragment.setSavedList(preferences.all.map {

@@ -12,18 +12,19 @@ import kotlinx.android.synthetic.main.item_simple_text.view.*
 
 class MainFragment : Fragment() {
 
+    var onItemClickListener: ((Station) -> Unit)? = null
 
     private val enhancedRecyclerAdapter =
-        object : EnhancedRecyclerAdapter<Station>(R.layout.item_simple_text) {
-            override fun bindItem(parentView: View, item: Station) {
-                parentView.tv_title.text = item.name
+            object : EnhancedRecyclerAdapter<Station>(R.layout.item_simple_text) {
+                override fun bindItem(parentView: View, item: Station) {
+                    parentView.tv_title.text = item.name
+                }
             }
-        }
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
@@ -33,14 +34,14 @@ class MainFragment : Fragment() {
 
         rv_saved.adapter = enhancedRecyclerAdapter
         rv_saved.addItemDecoration(
-            DividerItemDecoration(
-                requireContext(),
-                DividerItemDecoration.VERTICAL
-            )
+                DividerItemDecoration(
+                        requireContext(),
+                        DividerItemDecoration.VERTICAL
+                )
         )
 
         enhancedRecyclerAdapter.onItemClickListener = {
-            Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
+            onItemClickListener?.invoke(it)
         }
     }
 
