@@ -1,6 +1,7 @@
 package com.example.traficontime
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -12,10 +13,14 @@ import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val GLOBAL_PREFERENCES_KEY = "GLOBAL_PREFERENCES_KEY"
+    }
+
+
     private lateinit var mainFragment: MainFragment
     private lateinit var searchStationFragment: SearchStationFragment
     private lateinit var stationTimeTableFragment: StationTimeTableFragment
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,12 +30,14 @@ class MainActivity : AppCompatActivity() {
         searchStationFragment = SearchStationFragment()
         stationTimeTableFragment = StationTimeTableFragment()
 
-        val preferences = getPreferences(Context.MODE_PRIVATE)
+        val preferences = getSharedPreferences(GLOBAL_PREFERENCES_KEY, Context.MODE_PRIVATE)
 
         searchStationFragment.onItemClickListener = {
             preferences.edit {
                 putString(it.id.toString(), Gson().toJson(it))
             }
+            onBackPressed()
+            reloadMainFragment(preferences)
         }
 
         mainFragment.onItemClickListener = {
@@ -38,11 +45,15 @@ class MainActivity : AppCompatActivity() {
             stationTimeTableFragment.setStationId(it.id.toString())
         }
 
+        reloadMainFragment(preferences)
+
+        showFragment(mainFragment)
+    }
+
+    private fun reloadMainFragment(preferences: SharedPreferences) {
         mainFragment.setSavedList(preferences.all.map {
             Gson().fromJson(it.value as String, Station::class.java)
         })
-
-        showFragment(mainFragment)
     }
 
     override fun onBackPressed() {

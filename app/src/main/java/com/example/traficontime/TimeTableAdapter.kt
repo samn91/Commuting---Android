@@ -13,7 +13,6 @@ class TimeTableAdapter :
 
     private var fullList = listOf<StationRecord>()
 
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -30,8 +29,8 @@ class TimeTableAdapter :
         val item = fullList[position]
 
         val notRelTimePrefix = if (item.isRealTime) "" else "*"
-        holder.itemView.tv_time.text = (notRelTimePrefix +
-                item.time.split('T')[1].split(":").slice(0..1).joinToString(":"))
+        holder.itemView.tv_time.text = (notRelTimePrefix + item.time)
+               // item.time.split('T')[1].split(":").slice(0..1).joinToString(":"))
         holder.itemView.tv_station_name.text = (item.name + " " + item.toward)
     }
 

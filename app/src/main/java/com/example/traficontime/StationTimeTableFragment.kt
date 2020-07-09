@@ -44,10 +44,10 @@ class StationTimeTableFragment : Fragment() {
         rv_filter_bus.adapter = bussAdapter
 
         stopsAdapter.onItemClickListener = {
-            resumitTimeList()
+            resubmitTimeList()
         }
         bussAdapter.onItemClickListener = {
-            resumitTimeList()
+            resubmitTimeList()
         }
 //        timeAdapter.onItemClickListener = {
 //            Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
@@ -66,24 +66,23 @@ class StationTimeTableFragment : Fragment() {
 
     fun setStationId(id: String) {
         stationId = id
-        loadData()
     }
 
     private fun loadData() {
         timeAdapter.submitList(listOf())
         backgroundDisposable = getBussTimeTable(stationId)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                timeList = it
-                stopsAdapter.submitList(it.map { it.stopPoint }.toSet().toList())
-                bussAdapter.submitList(it.map { it.name }.toSet().toList())
-                resumitTimeList()
+            .subscribe({recordList->
+                timeList = recordList
+                stopsAdapter.submitList(recordList.map { it.stopPoint }.toSet().toList())
+                bussAdapter.submitList(recordList.map { it.name }.toSet().toList())
+                resubmitTimeList()
             }, {
-
+it
             })
     }
 
-    private fun resumitTimeList() {
+    private fun resubmitTimeList() {
         val filteredList = timeList
             .filter { stopsAdapter.getSelectedItem().contains(it.stopPoint) }
             .filter { bussAdapter.getSelectedItem().contains(it.name) }

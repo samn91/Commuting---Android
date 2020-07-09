@@ -10,6 +10,8 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.text.SimpleDateFormat
+import java.util.*
 
 interface ApiService {
     @GET("querystation.asp")
@@ -83,6 +85,7 @@ data class StationRecord(
     val toward: String
 )
 
+
 fun getBussTimeTable(stationId: String) =
     apiService.stationRecords(stationId).map {
         XmlToJson.Builder(it.string()).build().toJson()!!
@@ -96,12 +99,32 @@ fun getBussTimeTable(stationId: String) =
     }.map { jsonArray ->
         (0 until jsonArray.length()).map {
             val jsonObject = jsonArray.getJSONObject(it)
+
+            val div =
+                if (jsonObject.getString("RealTime").isNullOrEmpty().not()
+                ) {
+                    jsonObject.getJSONObject("RealTime").getJSONObject("RealTimeInfo")
+                        .getInt("DepTimeDeviation")
+                } else 0
+
+
             StationRecord(
                 jsonObject.getString("Name"),
-                jsonObject.getString("JourneyDateTime"),
-                jsonObject.getBoolean("IsTimingPoint"),
+                getTime(jsonObject.getString("JourneyDateTime"), div),
+                jsonObject.getString("RealTime").isNullOrEmpty().not(),
+                //jsonObject.getBoolean("IsTimingPoint"),
                 jsonObject.getString("StopPoint"),
                 jsonObject.getString("Towards")
             )
         }
     }
+
+val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+val timeDateFormat = SimpleDateFormat("HH:mm")
+private inline fun getTime(dateString: String, div: Int): String {
+    val date = apiDateFormat.parse(dateString)
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+    calendar.add(Calendar.MINUTE, div);
+    return timeDateFormat.format(calendar.time)
+}

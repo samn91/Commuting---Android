@@ -9,7 +9,14 @@ class FilterAdapter : EnhancedRecyclerAdapter<String>(R.layout.item_filter_text)
     private val selectedSet = mutableSetOf<String>()
 
     override fun bindItem(parentView: View, item: String) {
-        parentView.setOnClickListener { _ ->
+        parentView.setOnClickListener {
+            if (selectedSet.size == itemCount) {
+                selectedSet.clear()
+                selectedSet.add(item)
+                onItemClickListener?.invoke(item)
+                notifyDataSetChanged()
+                return@setOnClickListener
+            }
             if (selectedSet.contains(item)) {
                 selectedSet.remove(item)
             } else {
