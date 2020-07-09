@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import com.example.traficontime.timetable.StationTimeTableFragment
 import com.google.gson.Gson
 
 
@@ -21,6 +22,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainFragment: MainFragment
     private lateinit var searchStationFragment: SearchStationFragment
     private lateinit var stationTimeTableFragment: StationTimeTableFragment
+    private val preferences
+        get() = getSharedPreferences(
+            GLOBAL_PREFERENCES_KEY,
+            Context.MODE_PRIVATE
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,48 +36,68 @@ class MainActivity : AppCompatActivity() {
         searchStationFragment = SearchStationFragment()
         stationTimeTableFragment = StationTimeTableFragment()
 
-        val preferences = getSharedPreferences(GLOBAL_PREFERENCES_KEY, Context.MODE_PRIVATE)
 
         searchStationFragment.onItemClickListener = {
-            preferences.edit {
-                putString(it.id.toString(), Gson().toJson(it))
-            }
+            storeSaveStation(preferences, SavedStation(it.id, it.name, setOf(), setOf()))
             onBackPressed()
-            reloadMainFragment(preferences)
         }
 
         mainFragment.onItemClickListener = {
             showFragment(stationTimeTableFragment, true)
-            stationTimeTableFragment.setStationId(it.id.toString())
+            stationTimeTableFragment.setStation(it)
         }
 
         reloadMainFragment(preferences)
-
         showFragment(mainFragment)
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            invalidateOptionsMenu()
+        }
+    }
+
+    private fun storeSaveStation(
+        preferences: SharedPreferences,
+        savedStation: SavedStation
+    ) {
+        preferences.edit {
+            putString(savedStation.id.toString(), Gson().toJson(savedStation))
+        }
+        reloadMainFragment(preferences)
     }
 
     private fun reloadMainFragment(preferences: SharedPreferences) {
         mainFragment.setSavedList(preferences.all.map {
-            Gson().fromJson(it.value as String, Station::class.java)
+            Gson().fromJson(it.value as String, SavedStation::class.java)
         })
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0)
+        if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
-        else super.onBackPressed()
+        } else super.onBackPressed()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.main, menu)
+        menu?.findItem(R.id.menu_config)?.isVisible = mainFragment.isVisible// && !isTimeTableShown
+        menu?.findItem(R.id.menu_add)?.isVisible = stationTimeTableFragment.isVisible
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.emnu_config -> {
+            R.id.menu_config -> {
                 showFragment(searchStationFragment, true)
+                true
+            }
+            R.id.menu_add -> {
+                val station = stationTimeTableFragment.getStation()
+                storeSaveStation(
+                    preferences,
+                    station
+                )
+                onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -18,7 +18,7 @@ interface ApiService {
     fun stationQuery(@Query("inpPointfr") stationName: String): Single<ResponseBody>
 
     @GET("stationresults.asp")
-    fun stationRecords(@Query("selPointFrKey") stationId: String): Single<ResponseBody>
+    fun stationRecords(@Query("selPointFrKey") stationId: Int): Single<ResponseBody>
 }
 
 
@@ -29,6 +29,7 @@ private var retrofit: Retrofit = Retrofit.Builder()
 
 private var apiService = retrofit.create(ApiService::class.java)
 
+data class SavedStation(val id: Int, val name: String, val stopPoint: Set<String>, val busName: Set<String>)
 
 //
 //<Id>80000</Id>
@@ -86,7 +87,7 @@ data class StationRecord(
 )
 
 
-fun getBussTimeTable(stationId: String) =
+fun getBussTimeTable(stationId: Int) =
     apiService.stationRecords(stationId).map {
         XmlToJson.Builder(it.string()).build().toJson()!!
     }.map {
@@ -121,7 +122,7 @@ fun getBussTimeTable(stationId: String) =
 
 val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 val timeDateFormat = SimpleDateFormat("HH:mm")
-private inline fun getTime(dateString: String, div: Int): String {
+private fun getTime(dateString: String, div: Int): String {
     val date = apiDateFormat.parse(dateString)
     val calendar = Calendar.getInstance()
     calendar.time = date

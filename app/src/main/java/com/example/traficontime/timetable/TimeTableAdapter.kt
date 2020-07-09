@@ -1,8 +1,10 @@
-package com.example.traficontime
+package com.example.traficontime.timetable
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.traficontime.R
+import com.example.traficontime.StationRecord
 import kotlinx.android.synthetic.main.item_station_record.view.*
 
 /**

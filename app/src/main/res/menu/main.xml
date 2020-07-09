@@ -9,7 +9,12 @@
         android:visible="false"
         app:actionViewClass="android.widget.SearchView" />
     <item
-        android:id="@+id/emnu_config"
+        android:id="@+id/menu_add"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="add"
+        android:visible="false"/>
+    <item
+        android:id="@+id/menu_config"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="config" />
 </menu>

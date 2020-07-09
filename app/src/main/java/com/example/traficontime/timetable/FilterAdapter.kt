@@ -1,10 +1,14 @@
-package com.example.traficontime
+package com.example.traficontime.timetable
 
 import android.graphics.Typeface
 import android.view.View
+import com.example.traficontime.EnhancedRecyclerAdapter
+import com.example.traficontime.R
 import kotlinx.android.synthetic.main.item_simple_text.view.*
 
-class FilterAdapter : EnhancedRecyclerAdapter<String>(R.layout.item_filter_text) {
+class FilterAdapter : EnhancedRecyclerAdapter<String>(
+    R.layout.item_filter_text
+) {
 
     private val selectedSet = mutableSetOf<String>()
 
@@ -31,15 +35,9 @@ class FilterAdapter : EnhancedRecyclerAdapter<String>(R.layout.item_filter_text)
         parentView.tv_title.typeface = Typeface.create(parentView.tv_title.typeface, style)
     }
 
-    override fun submitList(newList: List<String>) {
-        selectedSet.clear()
-        selectedSet.addAll(newList)
-        super.submitList(newList)
-    }
-
     fun getSelectedItem() = selectedSet
 
-    fun setSelectedItem(list: List<String>) {
+    fun setSelectedItem(list: Set<String>) {
         selectedSet.addAll(list)
         notifyDataSetChanged()
     }

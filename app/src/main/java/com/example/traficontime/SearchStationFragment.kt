@@ -15,18 +15,11 @@ import kotlinx.android.synthetic.main.fragment_search_station.*
 import kotlinx.android.synthetic.main.item_simple_text.view.*
 
 
-class SearchStationFragment : Fragment() {
+class SearchStationFragment : BaseFragment(R.layout.fragment_search_station) {
 
     var onItemClickListener: ((Station) -> Unit)? = null
 
-    var backgroundDisposable: Disposable? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_search_station, container, false)
-    }
+    private var backgroundDisposable: Disposable? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,16 +41,14 @@ class SearchStationFragment : Fragment() {
             )
         )
 
-        et_search.doAfterTextChanged {text->
+        et_search.doAfterTextChanged { text ->
             if (text?.length ?: 0 > 3) {
                 backgroundDisposable?.dispose()
                 backgroundDisposable = getStations(text.toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
                         enhancedRecyclerAdapter.submitList(it)
-                    }, {
-                        Log.e("TAG", "onCreate: ", it)
-                    })
+                    }, logError)
             }
         }
     }
