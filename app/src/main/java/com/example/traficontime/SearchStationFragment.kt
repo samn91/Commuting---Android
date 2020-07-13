@@ -43,9 +43,13 @@ class SearchStationFragment : BaseFragment(R.layout.fragment_search_station) {
 
         et_search.doAfterTextChanged { text ->
             if (text?.length ?: 0 > 3) {
+                MainActivity.idlingResource.increment()
                 backgroundDisposable?.dispose()
                 backgroundDisposable = getStations(text.toString())
                     .observeOn(AndroidSchedulers.mainThread())
+                    .doFinally {
+                        MainActivity.idlingResource.decrement()
+                    }
                     .subscribe({
                         enhancedRecyclerAdapter.submitList(it)
                     }, logError)

@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import androidx.test.espresso.idling.CountingIdlingResource
 import com.example.traficontime.timetable.StationTimeTableFragment
 import com.google.gson.Gson
 
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val GLOBAL_PREFERENCES_KEY = "GLOBAL_PREFERENCES_KEY"
+        const val IDELING_KEY = "GLOBAL"
+        val idlingResource: CountingIdlingResource = CountingIdlingResource(IDELING_KEY)
     }
 
 

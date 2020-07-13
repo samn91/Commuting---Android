@@ -1,5 +1,6 @@
 package com.example.traficontime
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
@@ -29,7 +30,12 @@ private var retrofit: Retrofit = Retrofit.Builder()
 
 private var apiService = retrofit.create(ApiService::class.java)
 
-data class SavedStation(val id: Int, val name: String, val stopPoint: Set<String>, val busName: Set<String>)
+data class SavedStation(
+    val id: Int,
+    val name: String,
+    val stopPoint: Set<String>,
+    val busName: Set<String>
+)
 
 //
 //<Id>80000</Id>
@@ -109,12 +115,16 @@ fun getBussTimeTable(stationId: Int) =
                 } else 0
 
 
+            var stopPoint = jsonObject.getString("StopPoint")
+            if (stopPoint.isNullOrEmpty())
+                stopPoint = "X"
+
             StationRecord(
                 jsonObject.getString("Name"),
                 getTime(jsonObject.getString("JourneyDateTime"), div),
                 jsonObject.getString("RealTime").isNullOrEmpty().not(),
                 //jsonObject.getBoolean("IsTimingPoint"),
-                jsonObject.getString("StopPoint"),
+                stopPoint,
                 jsonObject.getString("Towards")
             )
         }

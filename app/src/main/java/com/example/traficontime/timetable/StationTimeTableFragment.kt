@@ -62,12 +62,16 @@ class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_tab
     }
 
     private fun loadData() {
+        MainActivity.idlingResource.increment()
         stopsAdapter.submitList(listOf())
         bussAdapter.submitList(listOf())
         timeAdapter.submitList(listOf())
         backgroundDisposable = getBussTimeTable(
             station.id
         ).observeOn(AndroidSchedulers.mainThread())
+            .doFinally {
+            MainActivity.idlingResource.decrement()
+        }
             .subscribe({ recordList ->
                 timeList = recordList
                 val allStops = recordList.map { it.stopPoint }.toSet()
