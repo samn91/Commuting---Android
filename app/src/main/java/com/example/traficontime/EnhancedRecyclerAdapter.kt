@@ -26,7 +26,7 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
     override fun getItemCount() = fullList.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = fullList[position]
+        val item = getItemAt(position)
         holder.itemView.setOnClickListener {
             onItemClickListener?.invoke(item)
         }
@@ -40,6 +40,8 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
     }
 
     abstract fun bindItem(parentView: View, item: T)
+
+    fun getItemAt(position: Int) = fullList[position]
 
 
 }

@@ -17,8 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val GLOBAL_PREFERENCES_KEY = "GLOBAL_PREFERENCES_KEY"
-        const val IDELING_KEY = "GLOBAL"
-        val idlingResource: CountingIdlingResource = CountingIdlingResource(IDELING_KEY)
+        private const val IDLING_KEY = "GLOBAL"
+        val idlingResource: CountingIdlingResource = CountingIdlingResource(IDLING_KEY)
     }
 
 
@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity() {
         mainFragment.onItemClickListener = {
             showFragment(stationTimeTableFragment, true)
             stationTimeTableFragment.setStation(it)
+        }
+
+        mainFragment.onDeleteListener = {
+            preferences.edit { remove(it.id.toString()) }
+            reloadMainFragment(preferences)
         }
 
         reloadMainFragment(preferences)

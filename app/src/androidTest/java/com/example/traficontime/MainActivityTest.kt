@@ -12,6 +12,7 @@ import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -130,6 +131,33 @@ class MainActivityTest {
         checkIfBusShown(BUS_4_A)
         onView(withText(BUS_4_B)).check(doesNotExist())
         onView(withText(BUS_130_A)).check(doesNotExist())
+    }
+
+    @Test
+    fun deleteStationTest() {
+        addStation(OSTERVARN_STATION)
+        onView(withText(OSTERVARN_STATION)).check(matches(isDisplayed()))
+        onView(withText(MALMO_C_STATION)).check(doesNotExist())
+
+        onView(withId(R.id.rv_saved)).perform(
+            actionOnItem<ViewHolder>(
+                withText(OSTERVARN_STATION),
+                swipeLeft()
+            )
+        )
+
+        addStation(MALMO_C_STATION)
+        onView(withText(MALMO_C_STATION)).check(matches(isDisplayed()))
+        onView(withText(OSTERVARN_STATION)).check(doesNotExist())
+
+        onView(withId(R.id.rv_saved)).perform(
+            actionOnItem<ViewHolder>(
+                withText(MALMO_C_STATION),
+                swipeLeft()
+            )
+        )
+
+        onView(withText(MALMO_C_STATION)).check(doesNotExist())
     }
 
     private fun checkIfBusShown(bus: String) {
