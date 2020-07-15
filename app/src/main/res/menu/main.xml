@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/app_bar_search"
@@ -12,9 +12,12 @@
         android:id="@+id/menu_add"
         android:icon="@android:drawable/ic_input_add"
         android:title="add"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/menu_config"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="config" />
+    <item
+        android:id="@+id/menu_here"
+        android:title="here" />
 </menu>

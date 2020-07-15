@@ -18,11 +18,11 @@ class MainFragment : BaseFragment(R.layout.fragment_main) {
         object : EnhancedRecyclerAdapter<SavedStation>(R.layout.item_simple_text) {
             override fun bindItem(parentView: View, item: SavedStation) {
                 var text = item.name
-                if (item.stopPoint.isNotEmpty()) {
-                    text += "|" + item.stopPoint.joinToString(",")
+                if (item.stopPointSet.isNotEmpty()) {
+                    text += "|" + item.stopPointSet.joinToString(",")
                 }
-                if (item.busName.isNotEmpty()) {
-                    text += "|" + item.busName.joinToString(",")
+                if (item.busNameSet.isNotEmpty()) {
+                    text += "|" + item.busNameSet.joinToString(",")
                 }
                 parentView.tv_title.text = text
             }

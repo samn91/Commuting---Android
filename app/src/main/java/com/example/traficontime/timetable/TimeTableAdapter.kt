@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.traficontime.R
 import com.example.traficontime.StationRecord
+import com.example.traficontime.showFormatedTime
 import kotlinx.android.synthetic.main.item_station_record.view.*
 
 /**
@@ -14,6 +15,7 @@ class TimeTableAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var fullList = listOf<StationRecord>()
+    private var showStationName = false
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -31,13 +33,15 @@ class TimeTableAdapter :
         val item = fullList[position]
 
         val notRelTimePrefix = if (item.isRealTime) "" else "*"
-        holder.itemView.tv_time.text = (notRelTimePrefix + item.time)
-               // item.time.split('T')[1].split(":").slice(0..1).joinToString(":"))
-        holder.itemView.tv_station_name.text = (item.name + " " + item.toward)
+        holder.itemView.tv_time.text = (notRelTimePrefix + item.time.showFormatedTime())
+        val stationName = if (showStationName) item.stationName + ": " else ""
+        holder.itemView.tv_station_name.text =
+            (stationName + item.busName + " " + item.toward)
     }
 
     fun submitList(newList: List<StationRecord>) {
         fullList = newList
+        showStationName = fullList.map { it.stationName }.toSet().size > 1
         notifyDataSetChanged()
     }
 

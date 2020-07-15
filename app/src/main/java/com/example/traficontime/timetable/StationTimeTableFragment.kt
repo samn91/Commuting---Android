@@ -4,19 +4,18 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.traficontime.*
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_station_time_table.*
 
 class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_table) {
 
-    private lateinit var station: SavedStation
+    private lateinit var stationList: List<SavedStation>
     private var backgroundDisposable: Disposable? = null
 
-    private val timeAdapter =
-        TimeTableAdapter()
-    private val stationAdapter =
-        FilterAdapter()
+    private val timeAdapter = TimeTableAdapter()
+    private val stationAdapter = FilterAdapter()
     private val stopsAdapter = FilterAdapter()
     private val bussAdapter = FilterAdapter()
 
@@ -36,15 +35,15 @@ class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_tab
         rv_filter_stop.adapter = stopsAdapter
         rv_filter_bus.adapter = bussAdapter
 
+        stationAdapter.onItemClickListener = {
+            resubmitTimeList()
+        }
         stopsAdapter.onItemClickListener = {
             resubmitTimeList()
         }
         bussAdapter.onItemClickListener = {
             resubmitTimeList()
         }
-//        timeAdapter.onItemClickListener = {
-//            Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
-//        }
     }
 
     override fun onResume() {
@@ -57,45 +56,70 @@ class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_tab
         backgroundDisposable?.dispose()
     }
 
-    fun setStation(savedStation: SavedStation) {
-        station = savedStation
+    fun setStation(savedStation: List<SavedStation>) {
+        if (savedStation.size == 1) {
+            // updateHeader()
+            //hideStationSelection
+        }
+        stationList = savedStation
     }
 
     private fun loadData() {
         MainActivity.idlingResource.increment()
-        stopsAdapter.submitList(listOf())
-        bussAdapter.submitList(listOf())
+        stationAdapter.clearAdapter()
+        stopsAdapter.clearAdapter()
+        bussAdapter.clearAdapter()
         timeAdapter.submitList(listOf())
-        backgroundDisposable = getBussTimeTable(
-            station.id
-        ).observeOn(AndroidSchedulers.mainThread())
-            .doFinally {
-            MainActivity.idlingResource.decrement()
+        val calls = stationList.map {
+            getBussTimeTable(
+                it.id, it.name
+            )
         }
-            .subscribe({ recordList ->
-                timeList = recordList
-                val allStops = recordList.map { it.stopPoint }.toSet()
-                val allBuses = recordList.map { it.name }.toSet()
-                stopsAdapter.submitList(allStops.toList())
-                bussAdapter.submitList(allBuses.toList())
+        backgroundDisposable =
+            Single.zip(
+                calls
+            ) {
+                it.map { it as List<StationRecord> }.flatten()
+            }.observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    MainActivity.idlingResource.decrement()
+                }
+                .subscribe({ recordList ->
+                    timeList = recordList
+                    val allStops = timeList.map { it.stopPoint }.toSet()
+                    val allBuses = timeList.map { it.busName }.toSet()
 
-                stopsAdapter.setSelectedItem(if (station.stopPoint.isEmpty()) allStops else station.stopPoint)
-                bussAdapter.setSelectedItem(if (station.busName.isEmpty()) allBuses else station.busName)
-                resubmitTimeList()
-            }, logError)
+                    stationAdapter.submitList(stationList.map { it.name })
+                    stationAdapter.setSelectedItem(stationList.map { it.name }.toSet())
+
+                    stopsAdapter.submitList(allStops.toList())
+                    bussAdapter.submitList(allBuses.toList())
+
+                    rv_filter_station.show(stationList.size > 1)
+                    rv_filter_stop.show(allStops.size > 1)
+
+                    if (stationList.size == 1) {
+                        val station = stationList.first()
+                        stopsAdapter.setSelectedItem(if (station.stopPointSet.isEmpty()) allStops else station.stopPointSet)
+                        bussAdapter.setSelectedItem(if (station.busNameSet.isEmpty()) allBuses else station.busNameSet)
+                    } else {
+                        stopsAdapter.setSelectedItem(allStops)
+                        bussAdapter.setSelectedItem(allBuses)
+                    }
+
+                    resubmitTimeList()
+                }, logError)
     }
 
     private fun resubmitTimeList() {
-        station = station.copy(
-            stopPoint = stopsAdapter.getSelectedItem(),
-            busName = bussAdapter.getSelectedItem()
-        )
         val filteredList = timeList
-            .filter { station.stopPoint.contains(it.stopPoint) }
-            .filter { station.busName.contains(it.name) }
+            .filter { stationAdapter.getSelectedItem().contains(it.stationName) }
+            .filter { stopsAdapter.getSelectedItem().contains(it.stopPoint) }
+            .filter { bussAdapter.getSelectedItem().contains(it.busName) }
+            .sortedBy { it.time }
         timeAdapter.submitList(filteredList)
     }
 
-    fun getStation() = station
+    fun getStationList() = stationList
 }
 

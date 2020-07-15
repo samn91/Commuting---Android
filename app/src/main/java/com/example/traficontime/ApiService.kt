@@ -1,6 +1,5 @@
 package com.example.traficontime
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
@@ -20,6 +19,13 @@ interface ApiService {
 
     @GET("stationresults.asp")
     fun stationRecords(@Query("selPointFrKey") stationId: Int): Single<ResponseBody>
+
+    @GET("neareststation.asp")
+    fun nearByStation(
+        @Query("x") x: String,
+        @Query("y") y: String,
+        @Query("Radius") radius: Int
+    ): Single<ResponseBody>
 }
 
 
@@ -33,8 +39,8 @@ private var apiService = retrofit.create(ApiService::class.java)
 data class SavedStation(
     val id: Int,
     val name: String,
-    val stopPoint: Set<String>,
-    val busName: Set<String>
+    val stopPointSet: Set<String>,
+    val busNameSet: Set<String>
 )
 
 //
@@ -46,7 +52,9 @@ data class SavedStation(
 data class Station(
     @SerializedName("Id") val id: Int,
     @SerializedName("Name") val name: String
-)
+) {
+    fun toSavedStation() = SavedStation(id, name, setOf(), setOf())
+}
 
 fun getStations(station: String) =
     apiService.stationQuery(station).map {
@@ -85,15 +93,16 @@ fun getStations(station: String) =
 //</Line>
 
 data class StationRecord(
-    val name: String,
-    val time: String,
+    val stationName: String,
+    val busName: String,
+    val time: Date,
     val isRealTime: Boolean,
     val stopPoint: String,
     val toward: String
 )
 
 
-fun getBussTimeTable(stationId: Int) =
+fun getBussTimeTable(stationId: Int, stationName: String) =
     apiService.stationRecords(stationId).map {
         XmlToJson.Builder(it.string()).build().toJson()!!
     }.map {
@@ -120,6 +129,7 @@ fun getBussTimeTable(stationId: Int) =
                 stopPoint = "X"
 
             StationRecord(
+                stationName,
                 jsonObject.getString("Name"),
                 getTime(jsonObject.getString("JourneyDateTime"), div),
                 jsonObject.getString("RealTime").isNullOrEmpty().not(),
@@ -129,13 +139,34 @@ fun getBussTimeTable(stationId: Int) =
             )
         }
     }
+//<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+//<soap:Body>
+//<GetNearestStopAreaResponse xmlns="http://www.etis.fskab.se/v1.0/ETISws">
+//<GetNearestStopAreaResult>
+//<Code>0</Code>
+//<Message/>
+//<NearestStopAreas>
+//<NearestStopArea>
+
+fun getNearBy(lat: String, lon: String, radius: Int = 500) =
+    apiService.nearByStation(lat, lon, radius).map {
+        XmlToJson.Builder(it.string()).build().toJson()!!
+    }.map {
+        it.getJSONObject("soap:Envelope")
+            .getJSONObject("soap:Body")
+            .getJSONObject("GetNearestStopAreaResponse")
+            .getJSONObject("GetNearestStopAreaResult")
+            .getJSONObject("NearestStopAreas")
+            .getJSONArray("NearestStopArea")
+    }.map {
+        Gson().fromJson(it.toString(), Array<Station>::class.java).toList()
+    }
 
 val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-val timeDateFormat = SimpleDateFormat("HH:mm")
-private fun getTime(dateString: String, div: Int): String {
+private fun getTime(dateString: String, div: Int): Date {
     val date = apiDateFormat.parse(dateString)
     val calendar = Calendar.getInstance()
     calendar.time = date
     calendar.add(Calendar.MINUTE, div);
-    return timeDateFormat.format(calendar.time)
+    return calendar.time
 }

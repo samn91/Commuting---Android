@@ -35,8 +35,11 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
 
     open fun submitList(newList: List<T>) {
         fullList = newList
-
         notifyDataSetChanged()
+    }
+
+    fun clearAdapter() {
+        submitList(listOf())
     }
 
     abstract fun bindItem(parentView: View, item: T)
