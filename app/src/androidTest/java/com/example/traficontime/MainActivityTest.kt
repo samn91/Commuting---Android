@@ -1,7 +1,11 @@
 package com.example.traficontime
 
 
+import android.Manifest
 import android.content.Context
+import android.location.Criteria
+import android.location.Location
+import android.location.LocationManager
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -19,6 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
 import com.example.traficontime.MainActivity.Companion.GLOBAL_PREFERENCES_KEY
 import org.hamcrest.Description
@@ -45,14 +50,19 @@ class MainActivityTest {
     }
 
     @Rule
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    @Rule
     @JvmField
-    var mActivityTestRule = object : ActivityTestRule<MainActivity>(MainActivity::class.java) {
+    val mActivityTestRule = object : ActivityTestRule<MainActivity>(MainActivity::class.java) {
 
         override fun beforeActivityLaunched() {
             InstrumentationRegistry.getInstrumentation().targetContext.getSharedPreferences(
                 GLOBAL_PREFERENCES_KEY,
                 Context.MODE_PRIVATE
             ).edit().clear().commit()
+            mockLocation()
             super.beforeActivityLaunched()
         }
     }
@@ -74,6 +84,42 @@ class MainActivityTest {
         addStation(OSTERVARN_STATION)
         onView(withText(OSTERVARN_STATION)).perform(click())
         checkIfBusShown(BUS_4_A)
+    }
+
+    @Test
+    fun nearByStationTest() {
+        onView(withContentDescription("More options")).perform(click())
+        onView(allOf(withId(R.id.title), withText("here"))).perform(click())
+
+        onView(withId(R.id.rv_filter_station)).check(matches(isDisplayed()))
+        onView(withId(R.id.rv_filter_bus)).check(matches(isDisplayed()))
+        onView(withId(R.id.rv_filter_stop)).check(matches(isDisplayed()))
+
+
+        checkIfBusShown("$MALMO_C_STATION: $BUS_4_A")
+    }
+
+    private fun mockLocation() {
+        val lm =
+            InstrumentationRegistry.getInstrumentation().targetContext.getSystemService(
+                Context.LOCATION_SERVICE
+            ) as LocationManager?
+        val criteria = Criteria()
+        criteria.accuracy = Criteria.ACCURACY_FINE
+        val mocLocationProvider = lm!!.getBestProvider(criteria, true)
+            ?: throw Exception("Couldn't get location provider")
+        lm.addTestProvider(
+            mocLocationProvider, false, false,
+            false, false, true, true, true, 0, 5
+        )
+        lm.setTestProviderEnabled(mocLocationProvider, true)
+        val loc = Location(mocLocationProvider)
+        val mockLocation = Location(mocLocationProvider)
+        mockLocation.latitude = 55.6129313
+        mockLocation.longitude = 13.0107681
+        mockLocation.altitude = loc.altitude
+        mockLocation.time = System.currentTimeMillis()
+        lm.setTestProviderLocation(mocLocationProvider, mockLocation)
     }
 
     @Test
