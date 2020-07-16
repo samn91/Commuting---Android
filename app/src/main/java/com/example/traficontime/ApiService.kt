@@ -162,9 +162,8 @@ fun getNearBy(lat: String, lon: String, radius: Int = 500) =
         Gson().fromJson(it.toString(), Array<Station>::class.java).toList()
     }
 
-val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 private fun getTime(dateString: String, div: Int): Date {
-    val date = apiDateFormat.parse(dateString)
+    val date = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dateString)
     val calendar = Calendar.getInstance()
     calendar.time = date
     calendar.add(Calendar.MINUTE, div);

@@ -121,5 +121,9 @@ class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_tab
     }
 
     fun getStationList() = stationList
+
+    fun getStopFilter() = stopsAdapter.getSelectedItem()
+    fun getBusFilter() = bussAdapter.getSelectedItem()
+
 }
 

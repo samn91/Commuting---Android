@@ -18,7 +18,6 @@ import com.example.traficontime.timetable.StationTimeTableFragment
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import io.reactivex.disposables.CompositeDisposable
-import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -139,10 +138,13 @@ class MainActivity : AppCompatActivity() {
                 val stationList = stationTimeTableFragment.getStationList()
                 if (stationList.size != 1)
                     throw Exception("cant be added")
-
+                val savedStation = stationList.first().copy(
+                    stopPointSet = stationTimeTableFragment.getStopFilter(),
+                    busNameSet = stationTimeTableFragment.getBusFilter()
+                )
                 storeSaveStation(
                     preferences,
-                    stationList.first()
+                    savedStation
                 )
                 onBackPressed()
                 true
@@ -158,6 +160,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     return true
                 }
+                idlingResource.increment()
                 LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener {
                     if (it == null) {
                         Toast.makeText(applicationContext, "GPS not found", Toast.LENGTH_SHORT)
@@ -166,6 +169,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     getNearBy(it.latitude.toString(), it.longitude.toString())
                         .map { it.map { it.toSavedStation() } }
+                        .doFinally {
+                            idlingResource.decrement()
+                        }
                         .subscribe({
                             stationTimeTableFragment.setStation(it)
                             showFragment(stationTimeTableFragment)

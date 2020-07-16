@@ -50,19 +50,19 @@ class MainActivityTest {
     }
 
     @Rule
-    val permissionRule: GrantPermissionRule =
+    @JvmField
+    var permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION)
 
     @Rule
     @JvmField
-    val mActivityTestRule = object : ActivityTestRule<MainActivity>(MainActivity::class.java) {
+    var mActivityTestRule = object : ActivityTestRule<MainActivity>(MainActivity::class.java) {
 
         override fun beforeActivityLaunched() {
             InstrumentationRegistry.getInstrumentation().targetContext.getSharedPreferences(
                 GLOBAL_PREFERENCES_KEY,
                 Context.MODE_PRIVATE
             ).edit().clear().commit()
-            mockLocation()
             super.beforeActivityLaunched()
         }
     }
@@ -88,15 +88,16 @@ class MainActivityTest {
 
     @Test
     fun nearByStationTest() {
+        mockLocation()
         onView(withContentDescription("More options")).perform(click())
         onView(allOf(withId(R.id.title), withText("here"))).perform(click())
-
         onView(withId(R.id.rv_filter_station)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_filter_bus)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_filter_stop)).check(matches(isDisplayed()))
+        onView(withText("4")).perform(click())
+        onView(withText("5")).perform(click())
 
-
-        checkIfBusShown("$MALMO_C_STATION: $BUS_4_A")
+        checkIfBusShown("$MALMO_C_STATION: $BUS_4_A direkt Värnhem")
     }
 
     private fun mockLocation() {
@@ -115,10 +116,13 @@ class MainActivityTest {
         lm.setTestProviderEnabled(mocLocationProvider, true)
         val loc = Location(mocLocationProvider)
         val mockLocation = Location(mocLocationProvider)
-        mockLocation.latitude = 55.6129313
-        mockLocation.longitude = 13.0107681
+
+        mockLocation.latitude = 55.609297
+        mockLocation.longitude = 13.000251
         mockLocation.altitude = loc.altitude
         mockLocation.time = System.currentTimeMillis()
+        mockLocation.elapsedRealtimeNanos = System.nanoTime();
+        mockLocation.accuracy = 0.0f
         lm.setTestProviderLocation(mocLocationProvider, mockLocation)
     }
 
