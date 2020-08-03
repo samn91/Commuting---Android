@@ -83,7 +83,7 @@ class MainActivityTest {
     fun timeTableTest() {
         addStation(OSTERVARN_STATION)
         onView(withText(OSTERVARN_STATION)).perform(click())
-        checkIfBusShown(BUS_4_A)
+        checkIfBusShown(BUS_4_B)
     }
 
     @Test
@@ -111,7 +111,7 @@ class MainActivityTest {
             ?: throw Exception("Couldn't get location provider")
         lm.addTestProvider(
             mocLocationProvider, false, false,
-            false, false, true, true, true, 0, 5
+            false, false, true, true, true, 1, 2
         )
         lm.setTestProviderEnabled(mocLocationProvider, true)
         val loc = Location(mocLocationProvider)

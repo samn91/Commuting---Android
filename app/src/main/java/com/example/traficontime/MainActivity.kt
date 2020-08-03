@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,8 +16,9 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.test.espresso.idling.CountingIdlingResource
 import com.example.traficontime.timetable.StationTimeTableFragment
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.gson.Gson
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 
@@ -26,12 +28,44 @@ class MainActivity : AppCompatActivity() {
         const val GLOBAL_PREFERENCES_KEY = "GLOBAL_PREFERENCES_KEY"
         private const val IDLING_KEY = "GLOBAL"
         val idlingResource: CountingIdlingResource = CountingIdlingResource(IDLING_KEY)
+        private val locationRequest =
+            LocationRequest.create().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+
     }
 
     private lateinit var mainFragment: MainFragment
     private lateinit var searchStationFragment: SearchStationFragment
     private lateinit var stationTimeTableFragment: StationTimeTableFragment
     private lateinit var compositeDisposable: CompositeDisposable
+    private var locationCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            val location = locationResult?.lastLocation
+            if (location == null) {
+                Toast.makeText(applicationContext, "GPS not found", Toast.LENGTH_SHORT)
+                    .show()
+                return
+            }
+            LocationServices.getFusedLocationProviderClient(this@MainActivity)
+                .removeLocationUpdates(this)
+            getNearBy(location.latitude.toString(), location.longitude.toString())
+                .map { it.map { it.toSavedStation() } }
+                .doFinally {
+                    idlingResource.decrement()
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    stationTimeTableFragment.setStation(it)
+                    showFragment(stationTimeTableFragment)
+                }, {
+                    Toast.makeText(applicationContext, "Server is unreachable", Toast.LENGTH_SHORT)
+                        .show()
+                    Log.e("onCreate: ", it.toString(), it)
+                }).let {
+                    compositeDisposable.add(it)
+                }
+        }
+    }
+
     private val preferences
         get() = getSharedPreferences(
             GLOBAL_PREFERENCES_KEY,
@@ -87,6 +121,13 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LocationServices.getFusedLocationProviderClient(this)
+            .removeLocationUpdates(locationCallback)
     }
 
     override fun onDestroy() {
@@ -161,26 +202,9 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
                 idlingResource.increment()
-                LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener {
-                    if (it == null) {
-                        Toast.makeText(applicationContext, "GPS not found", Toast.LENGTH_SHORT)
-                            .show()
-                        return@addOnSuccessListener
-                    }
-                    getNearBy(it.latitude.toString(), it.longitude.toString())
-                        .map { it.map { it.toSavedStation() } }
-                        .doFinally {
-                            idlingResource.decrement()
-                        }
-                        .subscribe({
-                            stationTimeTableFragment.setStation(it)
-                            showFragment(stationTimeTableFragment)
-                        }, {
-                            Log.e("onCreate: ", it.toString(), it)
-                        }).let {
-                            compositeDisposable.add(it)
-                        }
-                }
+                LocationServices.getFusedLocationProviderClient(this).requestLocationUpdates(
+                    locationRequest, locationCallback, Looper.getMainLooper()
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)
