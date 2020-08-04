@@ -2,6 +2,7 @@ package com.firebaseapp.traffic_425b3
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.test.espresso.idling.CountingIdlingResource
 import com.firebaseapp.traffic_425b3.timetable.StationTimeTableFragment
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 
@@ -87,6 +89,32 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        handleIntent()
+
+    }
+
+    private fun handleIntent() {
+        when (intent?.action) {
+            // When the action is triggered by a deep-link, Intent.ACTION_VIEW will be used
+            Intent.ACTION_VIEW -> {
+                val data = intent.data
+                when (data?.path) {
+                    DeepLink.HERE -> loadHere()
+                    DeepLink.STATION -> data.getQueryParameter(DeepLink.StationParams.NAME).let {
+                        Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> Toast.makeText(
+                        applicationContext,
+                        data?.path,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }
+            // Otherwise start the app as you would normally do.
+            //            else -> showDefaultView()
+        }
     }
 
     override fun onDestroy() {
@@ -128,6 +156,11 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleIntent()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_config -> {
@@ -150,41 +183,47 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.menu_here -> {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return true
-                }
-                idlingResource.increment()
-                LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener {
-                    if (it == null) {
-                        Toast.makeText(applicationContext, "GPS not found", Toast.LENGTH_SHORT)
-                            .show()
-                        return@addOnSuccessListener
-                    }
-                    getNearBy(it.latitude.toString(), it.longitude.toString())
-                        .map { it.map { it.toSavedStation() } }
-                        .doFinally {
-                            idlingResource.decrement()
-                        }
-                        .subscribe({
-                            stationTimeTableFragment.setStation(it)
-                            showFragment(stationTimeTableFragment)
-                        }, {
-                            Log.e("onCreate: ", it.toString(), it)
-                        }).let {
-                            compositeDisposable.add(it)
-                        }
-                }
+                loadHere()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun loadHere(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        idlingResource.increment()
+        LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener {
+            if (it == null) {
+                Toast.makeText(applicationContext, "GPS not found", Toast.LENGTH_SHORT)
+                    .show()
+                return@addOnSuccessListener
+            }
+            getNearBy(it.latitude.toString(), it.longitude.toString())
+                .map { it.map { it.toSavedStation() } }
+                .doFinally {
+                    idlingResource.decrement()
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    stationTimeTableFragment.setStation(it)
+                    showFragment(stationTimeTableFragment)
+                }, {
+                    Log.e("onCreate: ", it.toString(), it)
+                }).let {
+                    compositeDisposable.add(it)
+                }
+        }
+        return false
     }
 
     private fun showFragment(fragment: Fragment, addToBackStack: Boolean = true) {

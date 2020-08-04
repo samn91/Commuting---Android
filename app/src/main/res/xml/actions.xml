@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actions>
+    <action intentName="actions.intent.SHOW_STATION">
+        <fulfillment urlTemplate="https://traffic-425b3.firebaseapp.com/station{?name}">
+            <parameter-mapping
+                intentParameter="station.name"
+                urlParameter="stationName" />
+        </fulfillment>
+    </action>
+
+    <action intentName="actions.intent.SHOW_HERE">
+        <fulfillment urlTemplate="https://traffic-425b3.firebaseapp.com/here" />
+    </action>
+</actions>
