@@ -1,9 +1,9 @@
-package com.example.traficontime.timetable
+package com.firebaseapp.traffic_425b3.timetable
 
 import android.graphics.Typeface
 import android.view.View
-import com.example.traficontime.EnhancedRecyclerAdapter
-import com.example.traficontime.R
+import com.firebaseapp.traffic_425b3.EnhancedRecyclerAdapter
+import com.firebaseapp.traffic_425b3.R
 import kotlinx.android.synthetic.main.item_simple_text.view.*
 
 class FilterAdapter : EnhancedRecyclerAdapter<String>(

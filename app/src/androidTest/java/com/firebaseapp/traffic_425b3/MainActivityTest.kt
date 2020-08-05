@@ -1,4 +1,4 @@
-package com.example.traficontime
+package com.firebaseapp.traffic_425b3
 
 
 import android.Manifest
@@ -25,7 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
-import com.example.traficontime.MainActivity.Companion.GLOBAL_PREFERENCES_KEY
+import com.firebaseapp.traffic_425b3.MainActivity.Companion.GLOBAL_PREFERENCES_KEY
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf

@@ -1,4 +1,4 @@
-package com.example.traficontime
+package com.firebaseapp.traffic_425b3
 
 import org.junit.Test
 

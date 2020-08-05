@@ -1,9 +1,9 @@
-package com.example.traficontime.timetable
+package com.firebaseapp.traffic_425b3.timetable
 
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.example.traficontime.*
+import com.firebaseapp.traffic_425b3.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable

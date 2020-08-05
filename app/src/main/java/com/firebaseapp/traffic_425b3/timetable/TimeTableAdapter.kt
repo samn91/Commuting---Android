@@ -1,11 +1,11 @@
-package com.example.traficontime.timetable
+package com.firebaseapp.traffic_425b3.timetable
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.traficontime.R
-import com.example.traficontime.StationRecord
-import com.example.traficontime.showFormatedTime
+import com.firebaseapp.traffic_425b3.R
+import com.firebaseapp.traffic_425b3.StationRecord
+import com.firebaseapp.traffic_425b3.showFormatedTime
 import kotlinx.android.synthetic.main.item_station_record.view.*
 
 /**

@@ -1,4 +1,4 @@
-package com.example.traficontime
+package com.firebaseapp.traffic_425b3
 
 import android.Manifest
 import android.content.Context
@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.test.espresso.idling.CountingIdlingResource
-import com.example.traficontime.timetable.StationTimeTableFragment
+import com.firebaseapp.traffic_425b3.timetable.StationTimeTableFragment
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import io.reactivex.disposables.CompositeDisposable

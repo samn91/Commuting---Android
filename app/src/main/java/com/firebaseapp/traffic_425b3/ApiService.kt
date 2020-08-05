@@ -1,4 +1,4 @@
-package com.example.traficontime
+package com.firebaseapp.traffic_425b3
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
