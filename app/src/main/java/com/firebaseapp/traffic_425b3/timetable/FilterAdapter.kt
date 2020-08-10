@@ -4,9 +4,13 @@ import android.graphics.Typeface
 import android.view.View
 import com.firebaseapp.traffic_425b3.EnhancedRecyclerAdapter
 import com.firebaseapp.traffic_425b3.R
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.android.synthetic.main.item_simple_text.view.*
+import javax.inject.Inject
 
-class FilterAdapter : EnhancedRecyclerAdapter<String>(
+@ActivityScoped
+class FilterAdapter @Inject constructor() : EnhancedRecyclerAdapter<String>(
     R.layout.item_filter_text
 ) {
 

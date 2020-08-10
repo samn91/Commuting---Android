@@ -6,12 +6,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebaseapp.traffic_425b3.R
 import com.firebaseapp.traffic_425b3.StationRecord
 import com.firebaseapp.traffic_425b3.showFormatedTime
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.android.synthetic.main.item_station_record.view.*
+import javax.inject.Inject
 
 /**
  * Created by Samer on 08/07/2020 21:14.
  */
-class TimeTableAdapter :
+
+@ActivityScoped
+class TimeTableAdapter @Inject constructor() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var fullList = listOf<StationRecord>()

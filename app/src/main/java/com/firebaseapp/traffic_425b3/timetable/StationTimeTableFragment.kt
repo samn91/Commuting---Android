@@ -4,21 +4,28 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.firebaseapp.traffic_425b3.*
+import com.firebaseapp.traffic_425b3.di.BusAdapter
+import com.firebaseapp.traffic_425b3.di.StationAdapter
+import com.firebaseapp.traffic_425b3.di.StopsAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.scopes.ActivityScoped
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_station_time_table.*
+import javax.inject.Inject
 
-class StationTimeTableFragment : BaseFragment(R.layout.fragment_station_time_table) {
+@ActivityScoped
+@AndroidEntryPoint
+class StationTimeTableFragment @Inject constructor(
+    val timeAdapter: TimeTableAdapter,
+    @StationAdapter val stationAdapter: FilterAdapter,
+    @StopsAdapter val stopsAdapter: FilterAdapter,
+    @BusAdapter val bussAdapter: FilterAdapter
+) : BaseFragment(R.layout.fragment_station_time_table) {
 
     private lateinit var stationList: List<SavedStation>
     private var backgroundDisposable: Disposable? = null
-
-    private val timeAdapter = TimeTableAdapter()
-    private val stationAdapter = FilterAdapter()
-    private val stopsAdapter = FilterAdapter()
-    private val bussAdapter = FilterAdapter()
-
     private var timeList = listOf<StationRecord>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

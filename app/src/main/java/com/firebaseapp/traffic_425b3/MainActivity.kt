@@ -17,9 +17,11 @@ import androidx.test.espresso.idling.CountingIdlingResource
 import com.firebaseapp.traffic_425b3.timetable.StationTimeTableFragment
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -28,10 +30,17 @@ class MainActivity : AppCompatActivity() {
         val idlingResource: CountingIdlingResource = CountingIdlingResource(IDLING_KEY)
     }
 
-    private lateinit var mainFragment: MainFragment
-    private lateinit var searchStationFragment: SearchStationFragment
-    private lateinit var stationTimeTableFragment: StationTimeTableFragment
+    @Inject
+    lateinit var mainFragment: MainFragment
+
+    @Inject
+    lateinit var searchStationFragment: SearchStationFragment
+
+    @Inject
+    lateinit var stationTimeTableFragment: StationTimeTableFragment
+
     private lateinit var compositeDisposable: CompositeDisposable
+
     private val preferences
         get() = getSharedPreferences(
             GLOBAL_PREFERENCES_KEY,
@@ -42,9 +51,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mainFragment = MainFragment()
-        searchStationFragment = SearchStationFragment()
-        stationTimeTableFragment = StationTimeTableFragment()
         compositeDisposable = CompositeDisposable()
 
         searchStationFragment.onItemClickListener = {
@@ -63,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             reloadMainFragment(preferences)
         }
 
-        reloadMainFragment(preferences)
         showFragment(mainFragment, false)
 
         supportFragmentManager.addOnBackStackChangedListener {
@@ -87,6 +92,11 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reloadMainFragment(preferences)
     }
 
     override fun onDestroy() {

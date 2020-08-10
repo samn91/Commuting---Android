@@ -5,33 +5,23 @@ import android.view.View
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.scopes.ActivityRetainedScoped
+import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.android.synthetic.main.fragment_main.*
-import kotlinx.android.synthetic.main.item_simple_text.view.*
+import javax.inject.Inject
 
-
-class MainFragment : BaseFragment(R.layout.fragment_main) {
+@ActivityScoped
+@AndroidEntryPoint
+class MainFragment @Inject constructor(val adapter: FavoriteAdapter) : BaseFragment(R.layout.fragment_main) {
 
     var onItemClickListener: ((SavedStation) -> Unit)? = null
     var onDeleteListener: ((SavedStation) -> Unit)? = null
 
-    private val enhancedRecyclerAdapter =
-        object : EnhancedRecyclerAdapter<SavedStation>(R.layout.item_simple_text) {
-            override fun bindItem(parentView: View, item: SavedStation) {
-                var text = item.name
-                if (item.stopPointSet.isNotEmpty()) {
-                    text += "|" + item.stopPointSet.joinToString(",")
-                }
-                if (item.busNameSet.isNotEmpty()) {
-                    text += "|" + item.busNameSet.joinToString(",")
-                }
-                parentView.tv_title.text = text
-            }
-        }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rv_saved.adapter = enhancedRecyclerAdapter
+        rv_saved.adapter = adapter
         rv_saved.addItemDecoration(
             DividerItemDecoration(
                 requireContext(),
@@ -54,19 +44,19 @@ class MainFragment : BaseFragment(R.layout.fragment_main) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                 //Remove swiped item from list and notify the RecyclerView
                 val position = viewHolder.adapterPosition
-                onDeleteListener?.invoke(enhancedRecyclerAdapter.getItemAt(position))
+                onDeleteListener?.invoke(adapter.getItemAt(position))
             }
         }
         val itemTouchHelper = ItemTouchHelper(value)
         itemTouchHelper.attachToRecyclerView(rv_saved)
 
-        enhancedRecyclerAdapter.onItemClickListener = {
+        adapter.onItemClickListener = {
             onItemClickListener?.invoke(it)
         }
     }
 
     fun setSavedList(list: List<SavedStation>) {
-        enhancedRecyclerAdapter.submitList(list)
+        adapter.submitList(list)
     }
 
 }
