@@ -16,7 +16,7 @@
     <item
         android:id="@+id/menu_config"
         android:icon="@android:drawable/ic_menu_manage"
-        android:title="config" />
+        android:title="add" />
     <item
         android:id="@+id/menu_here"
         android:title="here" />

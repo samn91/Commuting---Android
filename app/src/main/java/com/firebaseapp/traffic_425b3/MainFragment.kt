@@ -6,14 +6,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.android.synthetic.main.fragment_main.*
 import javax.inject.Inject
 
 @ActivityScoped
 @AndroidEntryPoint
-class MainFragment @Inject constructor(val adapter: FavoriteAdapter) : BaseFragment(R.layout.fragment_main) {
+class MainFragment @Inject constructor(val adapter: FavoriteAdapter) :
+    BaseFragment(R.layout.fragment_main) {
 
     var onItemClickListener: ((SavedStation) -> Unit)? = null
     var onDeleteListener: ((SavedStation) -> Unit)? = null
@@ -53,10 +53,12 @@ class MainFragment @Inject constructor(val adapter: FavoriteAdapter) : BaseFragm
         adapter.onItemClickListener = {
             onItemClickListener?.invoke(it)
         }
+
     }
 
     fun setSavedList(list: List<SavedStation>) {
         adapter.submitList(list)
+        tv_main_hint?.show(adapter.itemCount == 0)
     }
 
 }

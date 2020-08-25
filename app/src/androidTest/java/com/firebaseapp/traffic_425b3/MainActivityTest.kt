@@ -80,6 +80,32 @@ class MainActivityTest {
     }
 
     @Test
+    fun verifyMainHintLabel() {
+
+        onView(withId(R.id.tv_main_hint)).check(matches(isDisplayed()))
+
+        addStation(OSTERVARN_STATION)
+
+        onView(withId(R.id.tv_main_hint)).check(matches(not(isDisplayed())))
+
+        deleteStation(OSTERVARN_STATION)
+
+        onView(withId(R.id.tv_main_hint)).check(matches(isDisplayed()))
+
+        addStation(OSTERVARN_STATION)
+        onView(withId(R.id.tv_main_hint)).check(matches(not(isDisplayed())))
+        addStation(MALMO_C_STATION)
+        onView(withId(R.id.tv_main_hint)).check(matches(not(isDisplayed())))
+
+        deleteStation(OSTERVARN_STATION)
+        onView(withId(R.id.tv_main_hint)).check(matches(not(isDisplayed())))
+        deleteStation(MALMO_C_STATION)
+        onView(withId(R.id.tv_main_hint)).check(matches(isDisplayed()))
+
+
+    }
+
+    @Test
     fun timeTableTest() {
         addStation(OSTERVARN_STATION)
         onView(withText(OSTERVARN_STATION)).perform(click())
@@ -189,25 +215,24 @@ class MainActivityTest {
         onView(withText(OSTERVARN_STATION)).check(matches(isDisplayed()))
         onView(withText(MALMO_C_STATION)).check(doesNotExist())
 
-        onView(withId(R.id.rv_saved)).perform(
-            actionOnItem<ViewHolder>(
-                withText(OSTERVARN_STATION),
-                swipeLeft()
-            )
-        )
+        deleteStation(OSTERVARN_STATION)
 
         addStation(MALMO_C_STATION)
         onView(withText(MALMO_C_STATION)).check(matches(isDisplayed()))
         onView(withText(OSTERVARN_STATION)).check(doesNotExist())
 
+        deleteStation(MALMO_C_STATION)
+
+        onView(withText(MALMO_C_STATION)).check(doesNotExist())
+    }
+
+    private fun deleteStation(station: String) {
         onView(withId(R.id.rv_saved)).perform(
             actionOnItem<ViewHolder>(
-                withText(MALMO_C_STATION),
+                withText(station),
                 swipeLeft()
             )
         )
-
-        onView(withText(MALMO_C_STATION)).check(doesNotExist())
     }
 
     private fun checkIfBusShown(bus: String) {
@@ -220,7 +245,7 @@ class MainActivityTest {
 
     private fun addStation(station: String) {
         onView(withContentDescription("More options")).perform(click())
-        onView(allOf(withId(R.id.title), withText("config"))).perform(click())
+        onView(allOf(withId(R.id.title), withText("add"))).perform(click())
         onView(withId(R.id.et_search)).perform(replaceText(station), closeSoftKeyboard())
         onView(withId(R.id.rv_search)).perform(actionOnItemAtPosition<ViewHolder>(0, click()))
     }

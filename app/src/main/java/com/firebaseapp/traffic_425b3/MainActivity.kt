@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.synthetic.main.fragment_main.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -115,9 +116,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reloadMainFragment(preferences: SharedPreferences) {
-        mainFragment.setSavedList(preferences.all.map {
+        val list = preferences.all.map {
             Gson().fromJson(it.value as String, SavedStation::class.java)
-        })
+        }
+        mainFragment.setSavedList(list)
     }
 
     override fun onBackPressed() {
