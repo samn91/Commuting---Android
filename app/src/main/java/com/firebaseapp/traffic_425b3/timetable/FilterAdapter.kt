@@ -5,7 +5,6 @@ import android.view.View
 import com.firebaseapp.traffic_425b3.EnhancedRecyclerAdapter
 import com.firebaseapp.traffic_425b3.R
 import dagger.hilt.android.scopes.ActivityScoped
-import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.android.synthetic.main.item_simple_text.view.*
 import javax.inject.Inject
 

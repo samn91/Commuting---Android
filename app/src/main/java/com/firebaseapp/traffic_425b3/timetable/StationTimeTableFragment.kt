@@ -2,6 +2,7 @@ package com.firebaseapp.traffic_425b3.timetable
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.firebaseapp.traffic_425b3.*
 import com.firebaseapp.traffic_425b3.di.BusAdapter
@@ -96,11 +97,11 @@ class StationTimeTableFragment @Inject constructor(
                     val allStops = timeList.map { it.stopPoint }.toSet()
                     val allBuses = timeList.map { it.busName }.toSet()
 
-                    stationAdapter.submitList(stationList.map { it.name })
+                    stationAdapter.submitList(stationList.map { it.name }.sorted())
                     stationAdapter.setSelectedItem(stationList.map { it.name }.toSet())
 
-                    stopsAdapter.submitList(allStops.toList())
-                    bussAdapter.submitList(allBuses.toList())
+                    stopsAdapter.submitList(allStops.sorted())
+                    bussAdapter.submitList(allBuses.sortedBy { if(it.isDigitsOnly()) it.toInt() else Int.MAX_VALUE })
 
                     rv_filter_station.show(stationList.size > 1)
                     rv_filter_stop.show(allStops.size > 1)
