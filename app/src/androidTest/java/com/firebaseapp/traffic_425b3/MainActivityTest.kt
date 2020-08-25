@@ -203,7 +203,7 @@ class MainActivityTest {
         onView(withContentDescription("More options")).perform(click())
         onView(allOf(withId(R.id.title), withText("add"))).perform(click())
 
-        onView(withText("$station|A|4")).perform(click())
+        onView(withText(station)).perform(click())
         checkIfBusShown(BUS_4_A)
         onView(withText(BUS_4_B)).check(doesNotExist())
         onView(withText(BUS_130_A)).check(doesNotExist())
@@ -227,12 +227,7 @@ class MainActivityTest {
     }
 
     private fun deleteStation(station: String) {
-        onView(withId(R.id.rv_saved)).perform(
-            actionOnItem<ViewHolder>(
-                withText(station),
-                swipeLeft()
-            )
-        )
+        onView(withText(station)).perform(swipeLeft())
     }
 
     private fun checkIfBusShown(bus: String) {
