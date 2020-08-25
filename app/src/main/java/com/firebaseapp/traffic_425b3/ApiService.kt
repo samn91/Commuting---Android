@@ -1,5 +1,6 @@
 package com.firebaseapp.traffic_425b3
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
@@ -128,7 +129,7 @@ fun getBussTimeTable(stationId: Int, stationName: String) =
             if (stopPoint.isNullOrEmpty())
                 stopPoint = "X"
 
-            StationRecord(
+            val stationRecord = StationRecord(
                 stationName,
                 jsonObject.getString("Name"),
                 getTime(jsonObject.getString("JourneyDateTime"), div),
@@ -137,6 +138,9 @@ fun getBussTimeTable(stationId: Int, stationName: String) =
                 stopPoint,
                 jsonObject.getString("Towards")
             )
+
+            Log.i("API", "getBussTimeTable: $stationRecord")
+            stationRecord
         }
     }
 //<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

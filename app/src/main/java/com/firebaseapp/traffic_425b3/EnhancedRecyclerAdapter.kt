@@ -38,10 +38,6 @@ abstract class EnhancedRecyclerAdapter<T>(@LayoutRes private val resId: Int) :
         notifyDataSetChanged()
     }
 
-    fun clearAdapter() {
-        submitList(listOf())
-    }
-
     abstract fun bindItem(parentView: View, item: T)
 
     fun getItemAt(position: Int) = fullList[position]

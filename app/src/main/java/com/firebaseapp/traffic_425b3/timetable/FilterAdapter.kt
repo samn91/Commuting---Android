@@ -46,4 +46,9 @@ class FilterAdapter @Inject constructor() : EnhancedRecyclerAdapter<String>(
         notifyDataSetChanged()
     }
 
+    fun clearAdapter() {
+        selectedSet.clear()
+        submitList(listOf())
+    }
+
 }

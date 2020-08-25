@@ -18,7 +18,7 @@ import javax.inject.Inject
 @ActivityScoped
 @AndroidEntryPoint
 class StationTimeTableFragment @Inject constructor(
-    val timeAdapter: TimeTableAdapter,
+    private val timeAdapter: TimeTableAdapter,
     @StationAdapter val stationAdapter: FilterAdapter,
     @StopsAdapter val stopsAdapter: FilterAdapter,
     @BusAdapter val bussAdapter: FilterAdapter
