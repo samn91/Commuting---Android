@@ -116,7 +116,7 @@ class MainActivityTest {
     fun nearByStationTest() {
         mockLocation()
         onView(withContentDescription("More options")).perform(click())
-        onView(allOf(withId(R.id.title), withText("here"))).perform(click())
+        onView(allOf(withId(R.id.title), withText("Nearby"))).perform(click())
         onView(withId(R.id.rv_filter_station)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_filter_bus)).check(matches(isDisplayed()))
         onView(withId(R.id.rv_filter_stop)).check(matches(isDisplayed()))
@@ -201,7 +201,7 @@ class MainActivityTest {
         onView(allOf(withText("4"), withParent(withId(R.id.rv_filter_bus)))).perform(click())
 
         onView(withContentDescription("More options")).perform(click())
-        onView(allOf(withId(R.id.title), withText("add"))).perform(click())
+        onView(allOf(withId(R.id.title), withText("Add"))).perform(click())
 
         onView(withText(station)).perform(click())
         checkIfBusShown(BUS_4_A)
@@ -240,7 +240,7 @@ class MainActivityTest {
 
     private fun addStation(station: String) {
         onView(withContentDescription("More options")).perform(click())
-        onView(allOf(withId(R.id.title), withText("add"))).perform(click())
+        onView(allOf(withId(R.id.title), withText("Add"))).perform(click())
         onView(withId(R.id.et_search)).perform(replaceText(station), closeSoftKeyboard())
         onView(withId(R.id.rv_search)).perform(actionOnItemAtPosition<ViewHolder>(0, click()))
     }

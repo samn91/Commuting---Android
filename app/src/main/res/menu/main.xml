@@ -11,13 +11,13 @@
     <item
         android:id="@+id/menu_add"
         android:icon="@android:drawable/ic_input_add"
-        android:title="add"
+        android:title="Add"
         android:visible="false" />
     <item
         android:id="@+id/menu_config"
         android:icon="@android:drawable/ic_menu_manage"
-        android:title="add" />
+        android:title="Add" />
     <item
         android:id="@+id/menu_here"
-        android:title="here" />
+        android:title="Nearby" />
 </menu>
