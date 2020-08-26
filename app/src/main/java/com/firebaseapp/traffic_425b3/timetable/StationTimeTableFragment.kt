@@ -73,6 +73,7 @@ class StationTimeTableFragment @Inject constructor(
     }
 
     private fun loadData() {
+        pb_table.show(true)
         MainActivity.idlingResource.increment()
         stationAdapter.clearAdapter()
         stopsAdapter.clearAdapter()
@@ -91,6 +92,7 @@ class StationTimeTableFragment @Inject constructor(
             }.observeOn(AndroidSchedulers.mainThread())
                 .doFinally {
                     MainActivity.idlingResource.decrement()
+                    pb_table.show(false)
                 }
                 .subscribe({ recordList ->
                     timeList = recordList
@@ -101,7 +103,7 @@ class StationTimeTableFragment @Inject constructor(
                     stationAdapter.setSelectedItem(stationList.map { it.name }.toSet())
 
                     stopsAdapter.submitList(allStops.sorted())
-                    bussAdapter.submitList(allBuses.sortedBy { if(it.isDigitsOnly()) it.toInt() else Int.MAX_VALUE })
+                    bussAdapter.submitList(allBuses.sortedBy { if (it.isDigitsOnly()) it.toInt() else Int.MAX_VALUE })
 
                     rv_filter_station.show(stationList.size > 1)
                     rv_filter_stop.show(allStops.size > 1)
@@ -130,8 +132,11 @@ class StationTimeTableFragment @Inject constructor(
 
     fun getStationList() = stationList
 
-    fun getStopFilter() = stopsAdapter.getSelectedItem()
-    fun getBusFilter() = bussAdapter.getSelectedItem()
+    fun getStopSelectedSet() =
+        if (stopsAdapter.itemCount == stopsAdapter.getSelectedItem().size) mutableSetOf() else stopsAdapter.getSelectedItem()
+
+    fun getBusSelectedSet() =
+        if (bussAdapter.itemCount == bussAdapter.getSelectedItem().size) mutableSetOf() else bussAdapter.getSelectedItem()
 
 }
 

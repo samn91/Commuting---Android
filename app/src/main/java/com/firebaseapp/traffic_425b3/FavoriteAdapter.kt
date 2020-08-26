@@ -15,14 +15,15 @@ class FavoriteAdapter @Inject constructor() :
     override fun bindItem(parentView: View, item: SavedStation) {
         parentView.tv_title.text = item.name
 
+        val subtitle = mutableListOf<String>()
         var text = ""
         if (item.stopPointSet.isNotEmpty()) {
-            text += item.stopPointSet.joinToString(", ")
+            subtitle.add(item.stopPointSet.joinToString(", "))
         }
         if (item.busNameSet.isNotEmpty()) {
-            text += "\n" + item.busNameSet.joinToString(", ")
+            subtitle.add(item.busNameSet.joinToString(", "))
         }
-        parentView.tv_subtitle.show(text.isNotBlank())
-        parentView.tv_subtitle.text = text
+        parentView.tv_subtitle.show(subtitle.isNotEmpty())
+        parentView.tv_subtitle.text = subtitle.joinToString("\n")
     }
 }

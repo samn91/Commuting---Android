@@ -157,8 +157,8 @@ class MainActivity : AppCompatActivity() {
                 if (stationList.size != 1)
                     throw Exception("cant be added")
                 val savedStation = stationList.first().copy(
-                    stopPointSet = stationTimeTableFragment.getStopFilter(),
-                    busNameSet = stationTimeTableFragment.getBusFilter()
+                    stopPointSet = stationTimeTableFragment.getStopSelectedSet(),
+                    busNameSet = stationTimeTableFragment.getBusSelectedSet()
                 )
                 storeSaveStation(
                     preferences,
